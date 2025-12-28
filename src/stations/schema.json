@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["version", "stations"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "stations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/station" }
+    }
+  },
+  "$defs": {
+    "station": {
+      "type": "object",
+      "required": ["id", "name", "freq", "band", "category", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "freq": { "type": "string" },
+        "band": { "type": "string" },
+        "category": { "type": "string" },
+        "source": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["synth", "url", "file"] },
+            "preset": { "type": "string" },
+            "params": { "type": "object" },
+            "url": { "type": "string" }
+          }
+        },
+        "texture": {
+          "type": "object",
+          "properties": {
+            "color": { "type": "string", "enum": ["off", "white", "pink", "brown"] },
+            "amount": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        }
+      }
+    }
+  }
+}
+

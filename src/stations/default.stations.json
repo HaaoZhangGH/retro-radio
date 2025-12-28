@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "stations": [
+    {
+      "id": "rain-radio",
+      "name": "RAINING RADIO",
+      "freq": "88.5",
+      "band": "FM",
+      "category": "RAIN",
+      "source": { "kind": "synth", "preset": "rainWeather", "params": {} },
+      "texture": { "color": "pink", "amount": 0.12 }
+    }
+  ]
+}
