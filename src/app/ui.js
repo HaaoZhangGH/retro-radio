@@ -148,6 +148,8 @@ export function createApp() {
     knobRotateGroup: $("tuning-knob-rotate-group"),
     powerButton: $("power-button"),
     powerLed: $("power-led"),
+    modeLed: $("mode-led"),
+    modeText: $("mode-text"),
     freqText: $("freq-text"),
     stationText: $("station-text"),
     staticOverlay: $("static-overlay"),
@@ -166,6 +168,7 @@ export function createApp() {
   const glassDrops = generateGlassDrops({ glassDropsEl: dom.glassDrops });
 
   const fx = new FxCanvas({ canvas: dom.fxCanvas, getWeather: () => weather });
+  fx.setPaused(true);
   fx.start();
 
   const visualizer = new Visualizer({
@@ -254,6 +257,15 @@ export function createApp() {
     dom.powerLed.setAttribute("fill", isPowerOn ? "#22c55e" : "#444");
     dom.equalizerBars.style.opacity = "1";
     fx.setPaused(!isPowerOn);
+    if (isPowerOn) {
+      dom.modeLed.setAttribute("fill", "#ef4444");
+      dom.modeText.setAttribute("fill", "#ef4444");
+      dom.modeText.textContent = "LIVE";
+    } else {
+      dom.modeLed.setAttribute("fill", "#555");
+      dom.modeText.setAttribute("fill", "#9ca3af");
+      dom.modeText.textContent = "PAUSED";
+    }
     if (!isPowerOn) {
       // keep timer visible even when off
       dom.staticOverlay.classList.remove("static-noise");
@@ -298,13 +310,15 @@ export function createApp() {
       return;
     }
 
-    setStatus("[ POWER ON · CLICK/KEYPRESS TO START AUDIO ]");
+    setStatus("[ POWER ON ]");
+    // POWER click is a user gesture; attempt to start audio here (may still be blocked on some platforms).
     await audio.powerOn();
     visualizer.start();
 
     const station = currentStation();
     if (station) {
       await setStationByIndex(currentIndex, { reason: "boot" });
+      renderWeatherStatus("NOW");
     } else {
       setStatus("[ NO STATIONS ]");
     }
@@ -426,36 +440,12 @@ export function createApp() {
     currentIndex = pickFirstPlayableIndex(stations);
     weather = deriveWeather(weatherSeed);
     if (stations[0]) applyWeatherToStation(stations[0]);
-    // Desired default: "power on" UI, but audio will start after first user gesture.
-    isPowerOn = true;
+    // Default is muted: user explicitly turns POWER on for audio + timer.
+    isPowerOn = false;
     applyPowerUi();
     visualizer.start();
     renderWeatherStatus("NOW");
     applyStationUi(currentStation());
-
-    const tryUnlock = async () => {
-      if (!isPowerOn) return false;
-      const state = await audio.powerOn();
-      const running = state === "running";
-      if (!running) return false;
-      await setStationByIndex(currentIndex, { reason: "play" });
-      audioUnlocked = running;
-      return running;
-    };
-
-    const onFirstGesture = async () => {
-      try {
-        const ok = await tryUnlock();
-        if (!ok) return;
-        window.removeEventListener("pointerdown", onFirstGesture, true);
-        window.removeEventListener("keydown", onFirstGesture, true);
-      } catch {
-        // keep listeners to allow retry on next gesture
-      }
-    };
-
-    window.addEventListener("pointerdown", onFirstGesture, true);
-    window.addEventListener("keydown", onFirstGesture, true);
 
     wireSvgButton(dom.powerButton, togglePower);
     wireSvgButton(dom.knobArea, scanNextStation);

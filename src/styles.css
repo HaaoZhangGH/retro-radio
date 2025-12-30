@@ -71,6 +71,19 @@ body {
   z-index: 6;
 }
 
+.build-no {
+  position: fixed;
+  left: 10px;
+  bottom: 8px;
+  z-index: 11;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(120, 113, 108, 0.55);
+  font-family: ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  pointer-events: none;
+  user-select: none;
+}
+
 .stage {
   width: min(900px, 96vw);
   display: flex;

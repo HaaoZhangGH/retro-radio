@@ -41,7 +41,7 @@ export class FxCanvas {
     this._gust = null;
 
     this._elapsedMs = 0;
-    this._paused = false;
+    this._paused = true;
     this._fillMs = 5 * 60 * 1000;
 
     this._resize = this._resize.bind(this);
